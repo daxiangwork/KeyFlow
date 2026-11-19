@@ -73,7 +73,7 @@ KeyFlow 是一款开源的 macOS 鼠标效率工具，让京东京造 JZ M5 在 
 需要 macOS 13+ 和 Xcode Command Line Tools，不需要完整 Xcode。
 
 ```bash
-git clone https://github.com/OWNER/KeyFlow.git
+git clone https://github.com/daxiangwork/KeyFlow.git
 cd KeyFlow
 swift build
 ./Scripts/package-app.sh
