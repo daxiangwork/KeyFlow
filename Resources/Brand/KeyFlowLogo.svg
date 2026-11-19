@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="300" viewBox="0 0 1000 300" fill="none">
+  <title>KeyFlow</title>
+  <defs>
+    <mask id="mouseSplit">
+      <rect width="1024" height="1024" fill="#fff"/>
+      <rect x="402" y="256" width="28" height="240" rx="14" fill="#000"/>
+      <rect x="396" y="324" width="40" height="94" rx="20" fill="#000"/>
+    </mask>
+  </defs>
+  <g transform="translate(28 18) scale(0.258)" fill="#1A1A1A" stroke="#1A1A1A">
+    <g transform="translate(-81 10)">
+      <path mask="url(#mouseSplit)" fill="#1A1A1A" stroke="none" d="M268 384c0-118 78-204 148-204s148 86 148 204v296c0 82-78 144-148 144s-148-62-148-144V384z"/>
+      <path d="M572 512C690 478 780 372 886 292" stroke-width="64" stroke-linecap="round"/>
+      <path d="M572 512C684 552 762 666 850 772" stroke-width="64" stroke-linecap="round"/>
+    </g>
+  </g>
+  <text x="312" y="198" fill="#1A1A1A" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif" font-size="136" font-weight="700" letter-spacing="-5">KeyFlow</text>
+</svg>

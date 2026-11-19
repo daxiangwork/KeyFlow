@@ -1,0 +1,6 @@
+.build/
+dist/
+Artifacts/
+DesignHandoff/
+.DS_Store
+
