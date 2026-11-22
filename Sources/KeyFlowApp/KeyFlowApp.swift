@@ -23,7 +23,7 @@ struct KeyFlowApp: App {
                 set: { state.setServiceEnabled($0) }
             ))
             .disabled(!state.inputMonitoringGranted || !state.accessibilityGranted)
-            Text(state.monitor.isConnected ? "JZ M5 已连接" : "JZ M5 未连接")
+            Text(state.monitor.connectionTitle)
             if state.monitor.isConnected {
                 Text(state.battery.menuTitle)
                     .foregroundStyle(menuBatteryColor)
@@ -46,6 +46,7 @@ struct KeyFlowApp: App {
         case .smartActions: "KeyFlow"
         case .settings: "设置"
         case .actionsRing: "Actions Ring"
+        case .actionsRingDetail: "Actions Ring 详情"
         }
     }
 

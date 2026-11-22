@@ -111,12 +111,18 @@ final class HIDInputRouter: @unchecked Sendable {
 @MainActor
 final class HIDMonitor: ObservableObject {
     @Published private(set) var isConnected = false
+    @Published private(set) var isBluetooth = false
     @Published private(set) var lastSignal = "尚未收到鼠标信号"
     @Published private(set) var errorMessage: String?
 
     let suppressionRegistry = HIDInputRouter.shared.suppressionRegistry
     private let recognizer = TriggerRecognizer()
     private var manager: IOHIDManager?
+
+    var connectionTitle: String {
+        guard isConnected else { return "JZ M5 未连接" }
+        return isBluetooth ? "JZ M5 蓝牙已连接" : "JZ M5 已连接"
+    }
 
     var onTrigger: ((TriggerButton, TriggerGesture) -> Void)? {
         get { recognizer.onTrigger }
@@ -137,7 +143,18 @@ final class HIDMonitor: ObservableObject {
         let manager = IOHIDManagerCreate(kCFAllocatorDefault, IOOptionBits(kIOHIDOptionsTypeNone))
         IOHIDManagerSetDeviceMatching(manager, [kIOHIDVendorIDKey: 0x362D] as CFDictionary)
         self.manager = manager
+        let context = Unmanaged.passUnretained(self).toOpaque()
 
+        IOHIDManagerRegisterDeviceMatchingCallback(manager, { context, _, _, _ in
+            guard let context else { return }
+            let monitor = Unmanaged<HIDMonitor>.fromOpaque(context).takeUnretainedValue()
+            DispatchQueue.main.async { monitor.refreshConnection() }
+        }, context)
+        IOHIDManagerRegisterDeviceRemovalCallback(manager, { context, _, _, _ in
+            guard let context else { return }
+            let monitor = Unmanaged<HIDMonitor>.fromOpaque(context).takeUnretainedValue()
+            DispatchQueue.main.async { monitor.refreshConnection() }
+        }, context)
         IOHIDManagerRegisterInputValueCallback(manager, { _, _, _, value in
             let element = IOHIDValueGetElement(value)
             let usagePage = Int(IOHIDElementGetUsagePage(element))
@@ -149,6 +166,7 @@ final class HIDMonitor: ObservableObject {
 
         let status = IOHIDManagerOpen(manager, IOOptionBits(kIOHIDOptionsTypeNone))
         guard status == kIOReturnSuccess else {
+            self.manager = nil
             errorMessage = "无法读取 JZ M5。请检查输入监控权限后重新连接。"
             return
         }
@@ -160,6 +178,10 @@ final class HIDMonitor: ObservableObject {
         guard let manager else { return }
         let devices = IOHIDManagerCopyDevices(manager) as? Set<IOHIDDevice> ?? []
         isConnected = !devices.isEmpty
+        isBluetooth = devices.contains { device in
+            guard let transport = IOHIDDeviceGetProperty(device, kIOHIDTransportKey as CFString) as? String else { return false }
+            return transport.localizedCaseInsensitiveContains("Bluetooth")
+        }
         if !isConnected {
             recognizer.reset()
             lastSignal = "等待设备连接"

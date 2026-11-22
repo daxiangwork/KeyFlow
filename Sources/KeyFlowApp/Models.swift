@@ -92,11 +92,11 @@ enum ActionKind: String, Codable, CaseIterable, Identifiable {
     var systemImage: String {
         switch self {
         case .keyboardShortcut: "keyboard"
-        case .openApplication: "app"
-        case .openURL: "safari"
-        case .typeText: "text.insert"
+        case .openApplication: "square.grid.2x2"
+        case .openURL: "globe"
+        case .typeText: "text.cursor"
         case .runShortcut: "bolt"
-        case .appleScript: "applescript"
+        case .appleScript: "terminal"
         case .wait: "clock"
         case .showActionsRing: "circle.dotted"
         }

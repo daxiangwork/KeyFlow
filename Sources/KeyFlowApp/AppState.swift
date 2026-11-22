@@ -7,11 +7,13 @@ enum AppPage {
     case smartActions
     case settings
     case actionsRing
+    case actionsRingDetail
 }
 
 @MainActor
 final class AppState: ObservableObject {
     @Published var currentPage: AppPage = .home
+    @Published var ringDetailItem: RingItem?
     @Published private(set) var isServiceEnabled = false
     @Published private(set) var inputMonitoringGranted = false
     @Published private(set) var accessibilityGranted = false
@@ -48,7 +50,7 @@ final class AppState: ObservableObject {
         if enabled {
             refreshPermissions()
             guard monitor.isConnected else {
-                statusMessage = "无法启用：请先用有线或 2.4G 接收器连接 JZ M5。"
+                statusMessage = "无法启用：请先通过蓝牙、有线或 2.4G 接收器连接 JZ M5。"
                 return
             }
             guard inputMonitoringGranted && accessibilityGranted else {
@@ -113,20 +115,30 @@ final class AppState: ObservableObject {
     }
 
     private func openActionsRing() {
-        let rules = ringStore.availableRules(from: store.rules)
-        guard !rules.isEmpty else {
+        let items = ringStore.availableItems(from: store.rules)
+        guard !items.isEmpty else {
             ringController.showToast("暂无可用的 Smart Action，请先创建并启用规则。", kind: .info)
             return
         }
-        ringController.show(rules: rules)
+        ringController.show(items: items)
     }
 
-    private func executeFromRing(_ rule: SmartRule) {
+    private func executeFromRing(_ item: RingItem) {
+        statusMessage = "已触发“\(item.title)”"
+        if let action = item.systemAction {
+            do {
+                try SystemActionRunner.perform(action, configuration: item.configuration)
+                engine.recordResult("“\(item.title)”执行成功。")
+            } catch {
+                engine.recordResult("“\(item.title)”失败：\(error.localizedDescription)")
+            }
+            return
+        }
+        guard let rule = item.rule else { return }
         if let error = store.validationError(for: rule) {
             statusMessage = "“\(rule.name)”未执行：\(error)"
             return
         }
-        statusMessage = "已触发“\(rule.name)”"
         engine.execute(rule: rule)
     }
 }

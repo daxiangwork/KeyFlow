@@ -105,6 +105,35 @@ struct IconActionButtonStyle: ButtonStyle {
     }
 }
 
+struct ActionIconView: View {
+    let name: String
+    var size: CGFloat = 20
+
+    var body: some View {
+        Image(systemName: name)
+            .symbolRenderingMode(.monochrome)
+            .font(.system(size: size, weight: .light))
+            .frame(width: size, height: size, alignment: .center)
+    }
+}
+
+struct RingItemIconView: View {
+    let item: RingItem?
+    var size: CGFloat = 22
+
+    var body: some View {
+        if let data = item?.customImageData, let image = NSImage(data: data) {
+            Image(nsImage: image)
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: size, height: size, alignment: .center)
+        } else {
+            ActionIconView(name: item?.icon ?? "plus", size: size)
+        }
+    }
+}
+
 struct AssetImage: View {
     let name: String
     var ext = "png"

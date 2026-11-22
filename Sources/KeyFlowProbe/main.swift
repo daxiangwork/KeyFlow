@@ -27,7 +27,7 @@ func createManager() -> IOHIDManager {
 func listDevices() {
     let manager = createManager()
     guard let devices = IOHIDManagerCopyDevices(manager) as? Set<IOHIDDevice>, !devices.isEmpty else {
-        print("未发现 JZ M5。请确认使用有线或 2.4G 接收器连接。")
+        print("未发现 JZ M5。请确认鼠标已开机，并通过蓝牙、有线或 2.4G 接收器连接。")
         return
     }
 

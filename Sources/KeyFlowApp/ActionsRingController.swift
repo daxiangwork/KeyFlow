@@ -35,22 +35,22 @@ enum ActionsRingToastKind {
 final class ActionsRingController: ObservableObject {
     @Published private(set) var isVisible = false
 
-    var onSelect: ((SmartRule) -> Void)?
+    var onSelect: ((RingItem) -> Void)?
     private var panel: NSPanel?
     private var toastPanel: NSPanel?
     private var toastWorkItem: DispatchWorkItem?
     private var mouseMonitors: [Any] = []
     private var keyMonitors: [Any] = []
-    private var ringRules: [SmartRule] = []
+    private var ringItems: [RingItem] = []
 
-    func show(rules: [SmartRule]) {
+    func show(items: [RingItem]) {
         close()
-        ringRules = rules
+        ringItems = items
         let origin = Self.clampedOrigin(for: NSEvent.mouseLocation, size: CGSize(width: 600, height: 600))
         let panel = makePanel(frame: CGRect(origin: origin, size: CGSize(width: 600, height: 600)))
         let content = NSHostingView(rootView: ActionsRingView(
-            rules: rules,
-            onSelect: { [weak self] rule in self?.select(rule) },
+            items: items,
+            onSelect: { [weak self] item in self?.select(item) },
             onClose: { [weak self] in self?.close() },
             animateAppearance: true
         ))
@@ -70,7 +70,7 @@ final class ActionsRingController: ObservableObject {
         removeMonitors()
         panel?.close()
         panel = nil
-        ringRules = []
+        ringItems = []
         isVisible = false
     }
 
@@ -93,9 +93,9 @@ final class ActionsRingController: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: work)
     }
 
-    private func select(_ rule: SmartRule) {
+    private func select(_ item: RingItem) {
         close()
-        onSelect?(rule)
+        onSelect?(item)
     }
 
     private func closeToast() {
@@ -160,16 +160,16 @@ final class ActionsRingController: ObservableObject {
     private func handleMouseDown(_ event: NSEvent) {
         guard let panel else { return }
         let point = NSEvent.mouseLocation
-        if !interactiveFrames(for: panel, rules: ringRules).contains(where: { $0.contains(point) }) {
+        if !interactiveFrames(for: panel, items: ringItems).contains(where: { $0.contains(point) }) {
             close()
         }
     }
 
-    private func interactiveFrames(for panel: NSPanel, rules: [SmartRule]) -> [CGRect] {
+    private func interactiveFrames(for panel: NSPanel, items: [RingItem]) -> [CGRect] {
         let origin = panel.frame.origin
         var frames = [CGRect(x: origin.x + 282, y: origin.y + 282, width: 36, height: 36)]
-        for (index, _) in rules.enumerated() {
-            let angle = Double(index) * 360 / Double(rules.count)
+        for (index, _) in items.enumerated() {
+            let angle = Double(index) * 360 / Double(items.count)
             let radians = (angle - 90) * .pi / 180
             let center = CGPoint(x: origin.x + 300 + 86 * cos(radians), y: origin.y + 300 + 86 * sin(radians))
             frames.append(CGRect(x: center.x - 30, y: center.y - 30, width: 60, height: 60))

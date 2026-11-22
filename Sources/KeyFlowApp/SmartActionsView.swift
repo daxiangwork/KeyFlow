@@ -23,7 +23,7 @@ struct SmartActionsView: View {
 
     private var statusBar: some View {
         HStack(spacing: 14) {
-            StatusItem(text: state.monitor.isConnected ? "JZ M5 已连接" : "等待 JZ M5 连接", isActive: state.monitor.isConnected)
+            StatusItem(text: state.monitor.isConnected ? state.monitor.connectionTitle : "等待 JZ M5 连接", isActive: state.monitor.isConnected)
             StatusItem(text: "输入监控\(state.inputMonitoringGranted ? "已授权" : "未授权")", isActive: state.inputMonitoringGranted, warning: !state.inputMonitoringGranted)
             StatusItem(text: "辅助功能\(state.accessibilityGranted ? "已授权" : "未授权")", isActive: state.accessibilityGranted, warning: !state.accessibilityGranted)
             if !state.inputMonitoringGranted {

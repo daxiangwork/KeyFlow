@@ -140,6 +140,10 @@ final class BatteryMonitor: ObservableObject {
             lastUpdated = Date()
             lastError = nil
         case .failure(let error):
+            if case BatteryReadError.noReceiver = error {
+                reading = nil
+                lastUpdated = nil
+            }
             lastError = error.localizedDescription
         }
         isRefreshing = false

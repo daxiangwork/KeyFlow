@@ -85,7 +85,7 @@ struct HomeView: View {
             .offset(y: -18)
 
             if !state.monitor.isConnected {
-                Text("请确认接收器已插入，并且鼠标已开机。")
+                Text("请通过蓝牙、有线或 2.4G 接收器连接鼠标，并确认鼠标已开机。")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(Color(hex: 0x8A8A8A))
                     .offset(y: -8)

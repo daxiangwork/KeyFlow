@@ -26,6 +26,10 @@ struct MainWindow: View {
                 SettingsView(state: state, onImport: chooseImportFile, onExport: chooseExportFile)
             case .actionsRing:
                 ActionsRingEditorView(state: state, selectedRuleID: $selectedRuleID)
+            case .actionsRingDetail:
+                if let item = state.ringDetailItem {
+                    ActionsRingDetailView(state: state, selectedRuleID: $selectedRuleID, item: item)
+                }
             }
         }
         .background(KeyFlowTheme.canvas)

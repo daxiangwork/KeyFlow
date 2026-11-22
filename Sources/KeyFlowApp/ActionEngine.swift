@@ -65,6 +65,10 @@ final class ActionEngine: ObservableObject {
         tasks[ruleID]?.cancel()
     }
 
+    func recordResult(_ text: String) {
+        lastResult = text
+    }
+
     private func perform(_ action: SmartAction) async throws {
         switch action.kind {
         case .keyboardShortcut:
