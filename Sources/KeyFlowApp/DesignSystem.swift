@@ -126,12 +126,46 @@ struct RingItemIconView: View {
             Image(nsImage: image)
                 .resizable()
                 .interpolation(.high)
+                .renderingMode(.template)
                 .scaledToFit()
                 .frame(width: size, height: size, alignment: .center)
         } else {
-            ActionIconView(name: item?.icon ?? "plus", size: size)
+            RingIconGlyphView(icon: item?.icon ?? "plus", size: size)
         }
     }
+}
+
+struct RingIconGlyphView: View {
+    let icon: String
+    var size: CGFloat = 22
+
+    var body: some View {
+        if icon.hasPrefix("asset:") {
+            let assetPath = String(icon.dropFirst(6))
+            let url = Bundle.main.resourceURL?
+                .appendingPathComponent("Icons")
+                .appendingPathComponent(assetPath)
+                .appendingPathExtension("svg")
+            if let url, let image = bundledTemplateImage(at: url) {
+                Image(nsImage: image)
+                    .resizable()
+                    .interpolation(.high)
+                    .renderingMode(.template)
+                    .scaledToFit()
+                    .frame(width: size, height: size, alignment: .center)
+            } else {
+                ActionIconView(name: "questionmark.circle", size: size)
+            }
+        } else {
+            ActionIconView(name: icon, size: size)
+        }
+    }
+}
+
+private func bundledTemplateImage(at url: URL) -> NSImage? {
+    guard let image = NSImage(contentsOf: url) else { return nil }
+    image.isTemplate = true
+    return image
 }
 
 struct AssetImage: View {

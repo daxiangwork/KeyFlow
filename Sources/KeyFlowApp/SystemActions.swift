@@ -186,7 +186,7 @@ enum SystemActionRunner {
                 throw ActionExecutionError.actionFailed(error["NSAppleScriptErrorMessage"] as? String ?? "无法重置系统音量。")
             }
         case .toggleMute:
-            try postMediaKey(20)
+            try postMediaKey(7)
         case .volumeUp:
             try postMediaKey(0)
         case .volumeDown:
@@ -203,7 +203,11 @@ enum SystemActionRunner {
             try openTarget(configuration?.path, message: "请先选择文件或文件夹路径。")
         case .openWebpage:
             let path = configuration?.path.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            guard !path.isEmpty, let url = URL(string: path), let scheme = url.scheme, ["http", "https"].contains(scheme) else {
+            guard !path.isEmpty,
+                  let url = URL(string: path),
+                  let scheme = url.scheme?.lowercased(),
+                  ["http", "https"].contains(scheme),
+                  url.host != nil else {
                 throw ActionExecutionError.invalidURL
             }
             guard NSWorkspace.shared.open(url) else {

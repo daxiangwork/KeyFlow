@@ -52,7 +52,9 @@ final class ActionsRingStore: ObservableObject {
                 return nil
             }
         }
-        return rules.filter(\.isEnabled).prefix(8).map(RingItem.init(rule:))
+        return rules.filter(\.isEnabled).prefix(8).map { rule in
+            RingItem(rule: rule).applying(overrides[RingItem.referenceID(for: rule)])
+        }
     }
 
     func add(_ id: String, at index: Int? = nil, from rules: [SmartRule]) {

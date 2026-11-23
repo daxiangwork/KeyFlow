@@ -5,7 +5,7 @@
 
   **让京造 JZ M5 在 macOS 上拥有自然、高效的自动化工作流。**
 
-  Smart Actions · Actions Ring · 真实电量 · 本地配置
+  Smart Actions · Actions Ring · 系统操作 · 图标库 · 本地配置
 
   <p>
     <img src="https://img.shields.io/badge/macOS-13%2B-1A1A1A?style=flat-square&logo=apple&logoColor=white" alt="macOS 13+">
@@ -23,7 +23,7 @@
 
 KeyFlow 是一款开源的 macOS 菜单栏工具，让京东京造 **JZ M5** 通过蓝牙、有线或 2.4G 接收器连接时支持类似 Logi Options+ 的 Smart Actions 与 Actions Ring。
 
-不需要常驻网页驱动。KeyFlow 直接在 Mac 上识别鼠标输入，执行你定义的快捷键、应用启动、文本输入和多步工作流。
+不需要常驻网页驱动。KeyFlow 直接在 Mac 上识别鼠标输入，执行你定义的快捷键、应用启动、文本输入和多步工作流；也可以通过 Ring 在光标旁快速选择系统操作或已有 Smart Action。
 
 <p align="center">
   <img src="Docs/images/home.png" alt="KeyFlow 首页" width="900">
@@ -61,8 +61,8 @@ KeyFlow 是一款开源的 macOS 菜单栏工具，让京东京造 **JZ M5** 通
 把已有 Smart Action 或 KeyFlow 系统预设操作放入一个轻量桌面浮层，需要时再选择执行。
 
 - 最多 8 个操作位，按实际数量均分。
+- 支持系统操作 / Smart Actions Tab、拖入、替换、移除、排序、撤销和重做。
 - 使用规则 UUID 或系统操作 ID 引用原操作，不创建重复副本。
-- 支持系统操作 / Smart Actions Tab、媒体和音量预设、搜索、拖入、替换、移除、排序、撤销和重做。
 - 非激活浮层，不抢占原应用焦点。
 - 支持中心关闭、外部点击与 Esc 取消。
 - 支持屏幕边缘避让和多显示器定位。
@@ -73,12 +73,38 @@ Ring 不占用固定的默认按键。只需在任意规则中添加 **“打开
   <img src="Docs/images/actions-ring-editor.png" alt="KeyFlow Actions Ring 编辑页" width="900">
 </p>
 
+### 系统操作：媒体和打开动作开箱可用
+
+系统操作由 KeyFlow 预设并固定执行，不需要创建 Smart Action。
+
+- **媒体和音量**：系统音量、切换静音、音量上升、音量下降、重置音量、播放/暂停、上一曲、下一曲。
+- **打开**：打开应用程序、打开文件、网页、Finder、系统偏好设置、打开文件夹。
+- 应用程序、文件、文件夹和网页支持在详情页设置目标。
+- 目标配置按 Ring 操作位独立保存。
+- Finder 和系统偏好设置为固定执行项，不提供目标修改。
+
+### Ring 详情：按操作位自定义名称和图标
+
+每个 Ring 按钮都可以拥有自己的显示名称和图标，但不会改变系统菜单名称或 Smart Action 原规则。
+
+- Ring 名称最多 24 个字符，只作用于当前操作位。
+- 图标来源支持系统默认、Tabler Icons、Lucide、Heroicons 和本地上传。
+- 三套外部图标库已随应用完整打包：
+  - Tabler Icons：5,491 个
+  - Lucide：2,091 个
+  - Heroicons：324 个
+- 默认展示精选推荐图标，搜索后可从全部 7,906 个外部图标中选择。
+- 外部 SVG 图标会按模板色统一渲染，和系统图标一样适配 Ring 黑色按钮。
+- 上传图片支持方形裁剪区拖动、滑杆缩放和触控板捏合缩放。
+- 裁剪结果保存为 256×256 PNG，并只写入当前操作位配置。
+- 支持一键恢复默认显示。
+
 ### 真实电量与本地配置
 
 - 在 2.4G 模式下读取真实电量和充电状态。
 - 首页与菜单栏同步显示，每 60 秒自动刷新。
 - 低电量警告；未读到时显示 `--`，未连接时隐藏。
-- 规则与 Ring 配置只保存在本机。
+- 规则、Ring 顺序、打开目标、显示名称、图标选择和裁剪图片只保存在本机。
 - 没有账号、云同步、广告或分析服务。
 
 ## 快速开始
@@ -111,6 +137,8 @@ swift build
 open dist/KeyFlow.app
 ```
 
+打包脚本会同时复制 Ring 图标库、生成稳定的本机签名，并输出可直接运行的 `dist/KeyFlow.app`。当前应用包内置完整 SVG 图标索引，打包后约为 37 MB。
+
 打包脚本优先使用 `CODE_SIGN_IDENTITY` 指定的签名身份；本机存在 `KeyFlow Local Development` 时使用该稳定身份，否则使用 ad-hoc 签名。稳定签名可以避免普通重新构建后反复授权。
 
 ## 项目文档
@@ -120,13 +148,13 @@ open dist/KeyFlow.app
 | [使用说明](Docs/使用说明.md) | 安装、授权、规则、Ring、电量、备份与故障排查 |
 | [UI 设计规范](Docs/DesignSystem.md) | 色彩、字体、组件、页面结构与状态 |
 | [Actions Ring 早期设计草案](Docs/KeyFlow-ActionsRing-UI-Requirements.md) | 功能演进与设计过程参考 |
-| [第三方许可证说明](Resources/ThirdPartyNotices.txt) | 电量协议参考项目与 MIT 许可证 |
+| [第三方许可证说明](Resources/ThirdPartyNotices.txt) | JZ M5 电量适配、Tabler Icons、Lucide、Heroicons 许可证 |
 
 ## 隐私与产品边界
 
-KeyFlow 只拦截刚刚由 JZ M5 产生的匹配事件，不全局拦截普通键盘的复制、粘贴。只有用户主动创建并执行的自动化动作才会运行。
+KeyFlow 只拦截刚刚由 JZ M5 产生的匹配事件，不全局拦截普通键盘的复制、粘贴。只有用户主动创建并执行的自动化动作才会运行。上传的 Ring 图标和裁剪结果只保存在本机配置中，不会上传。
 
-Smart Actions 与 Actions Ring 已支持 **JZ M5 蓝牙、有线和 2.4G 连接**；电量读取目前仅支持 2.4G 模式。以下能力不在当前范围内：
+Smart Actions、系统操作与 Actions Ring 已支持 **JZ M5 蓝牙、有线和 2.4G 连接**；电量读取目前仅支持 2.4G 模式。以下能力不在当前范围内：
 
 - DPI、回报率、板载宏和固件更新等硬件设置；
 - 蓝牙和有线模式的电量读取；
@@ -139,7 +167,10 @@ Smart Actions 与 Actions Ring 已支持 **JZ M5 蓝牙、有线和 2.4G 连接*
 
 ## 致谢
 
-JZ M5 电量 HID 适配参考了 [LANMIN-X/Jingzao-JZM5-Battery](https://github.com/LANMIN-X/Jingzao-JZM5-Battery)，相关许可证说明已包含在项目中。
+- JZ M5 电量 HID 适配参考了 [LANMIN-X/Jingzao-JZM5-Battery](https://github.com/LANMIN-X/Jingzao-JZM5-Battery)。
+- Ring 图标库来自 [Tabler Icons](https://github.com/tabler/tabler-icons)、[Lucide](https://github.com/lucide-icons/lucide) 和 [Heroicons](https://github.com/tailwindlabs/heroicons)。
+
+相关许可证说明已包含在项目中。
 
 ## 许可证
 

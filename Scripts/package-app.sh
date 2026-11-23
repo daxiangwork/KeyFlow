@@ -13,6 +13,7 @@ cp "$ROOT/Resources/Info.plist" "$APP/Contents/Info.plist"
 cp "$ROOT/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
 cp "$ROOT/Resources/Brand/AppIcon.png" "$APP/Contents/Resources/AppIcon.png"
 cp "$ROOT/Resources/Images/"*.png "$APP/Contents/Resources/"
+cp -R "$ROOT/Resources/Icons" "$APP/Contents/Resources/"
 cp "$ROOT/Resources/ThirdPartyNotices.txt" "$APP/Contents/Resources/ThirdPartyNotices.txt"
 if [[ -n "${CODE_SIGN_IDENTITY:-}" ]]; then
     codesign --force --sign "$CODE_SIGN_IDENTITY" "$APP"
