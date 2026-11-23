@@ -14,7 +14,7 @@
     <img src="https://img.shields.io/badge/License-MIT-1C9C85?style=flat-square" alt="MIT License">
   </p>
 
-  [功能特性](#功能特性) · [快速开始](#快速开始) · [从源码构建](#从源码构建) · [项目文档](#项目文档) · [参与贡献](#参与贡献)
+  [功能特性](#功能特性) · [快速开始](#快速开始) · [隐私与产品边界](#隐私与产品边界) · [参与贡献](#参与贡献)
 </div>
 
 ---
@@ -28,7 +28,7 @@ KeyFlow 是一款开源的 macOS 菜单栏工具，让京东京造 **JZ M5** 通
 <p align="center">
   <img src="Docs/images/home.png" alt="KeyFlow 首页" width="900">
   <br>
-  <sub>首页集中显示设备连接、权限状态、真实电量和 Smart Actions 总开关。</sub>
+  <sub>首页集中显示设备连接、权限状态和 Smart Actions 总开关。</sub>
 </p>
 
 ## 功能特性
@@ -115,89 +115,39 @@ Ring 不占用固定的默认按键。只需在任意规则中添加 **“打开
 - Apple Silicon Mac
 - 京东京造 JZ M5，通过蓝牙、有线或 2.4G 接收器连接
 
-### 安装与配置
+### 从 GitHub Release 下载并安装
 
-1. 从项目 Releases 下载最新版本，解压后打开 `KeyFlow.app`。
-2. 在首页完成 **输入监控** 和 **辅助功能** 授权。
-3. 打开 **启用 Smart Actions**。
-4. 新建规则，设置触发按键、触发方式和动作。
-5. 使用“运行测试”验证。关闭窗口后，KeyFlow 会继续在菜单栏运行。
+1. 打开项目的 Releases 页面：
 
-详细操作与故障排查请阅读 [使用说明](Docs/使用说明.md)。
+   [https://github.com/daxiangwork/KeyFlow/releases](https://github.com/daxiangwork/KeyFlow/releases)
 
-## 从源码构建
+2. 在最新版本中选择 `KeyFlow-版本号.dmg` 并下载。
 
-需要 macOS 13+ 和 Xcode Command Line Tools，**不需要完整 Xcode**。
+   如果看到的是文件名包含 `unsigned-test` 的版本，它表示未公证测试版，仅建议信任该项目的测试用户使用。
 
-### 本机运行包
+3. 双击下载好的 DMG 文件。
 
-```bash
-git clone https://github.com/daxiangwork/KeyFlow.git
-cd KeyFlow
-swift build
-./Scripts/package-app.sh
-open dist/KeyFlow.app
-```
+4. 在打开的窗口中，把 **KeyFlow.app** 拖到 **Applications** 文件夹。
 
-`package-app.sh` 会复制 Ring 图标库、生成本机可运行的 `dist/KeyFlow.app`，并优先使用 `CODE_SIGN_IDENTITY` 指定的签名身份。没有正式证书时，本机开发流程仍会使用本地开发签名。
+5. 打开 **应用程序** 中的 **KeyFlow**。
 
-### DMG 发布策略
+6. 如果 macOS 弹出安全提示：
 
-项目支持两种发布模式，`.github/workflows/release.yml` 会根据 GitHub Secrets 自动选择。
+   - **正式 Release**：按系统提示选择“打开”。
+   - **未公证测试版**：进入 **系统设置 → 隐私与安全性**，选择 **仍要打开**。
 
-#### 没有 Apple Developer Program
+7. 将 JZ M5 通过蓝牙、有线或 2.4G 接收器连接到 Mac，并确认鼠标已开机。
 
-没有 Apple Developer Program 时，**推荐其他用户直接从源码构建**。推送版本 tag 后，CI 仍会生成一个明确标注的 DMG，但它只是测试版：
+8. 在 KeyFlow 首页完成两项授权：
 
-```bash
-git tag v0.1.1
-git push origin v0.1.1
-```
+   - **输入监控**
+   - **辅助功能**
 
-此时 GitHub Release 会标记为 **Pre-release**，DMG 文件名包含 `unsigned-test`，Release 说明中也会明确提示：
+9. 打开 **启用 Smart Actions**。
 
-- 未完成 Apple 公证
-- 仅适合信任该开源项目的测试用户
-- 首次打开需要在“隐私与安全性”中手动允许
-- 普通用户更推荐源码构建
+10. 新建 Smart Action，设置触发按键、触发方式和动作；需要 Ring 时，为任意规则添加 **“打开 Actions Ring”** 动作。
 
-本地也可以验证未公证 DMG：
-
-```bash
-KEYFLOW_SKIP_NOTARIZATION=1 ./Scripts/package-dmg.sh
-```
-
-#### 已配置 Apple Developer Program
-
-对外公开分发推荐使用已签名、已公证、已 staple 的正式 DMG。配置以下 GitHub Secrets 后，推送同一个 `v*` tag 会自动生成正式 Release：
-
-| Secret | 用途 |
-| --- | --- |
-| `APPLE_CERTIFICATE_BASE64` | Base64 编码的 Developer ID Application `.p12` 证书 |
-| `APPLE_CERTIFICATE_PASSWORD` | 上述 `.p12` 证书密码 |
-| `KEYCHAIN_PASSWORD` | CI 临时钥匙串密码 |
-| `APPLE_SIGNING_IDENTITY` | 可选，完整签名身份，如 `Developer ID Application: Name (TeamID)` |
-| `APPLE_API_KEY_ID` | App Store Connect API Key ID |
-| `APPLE_API_ISSUER_ID` | App Store Connect API Issuer ID |
-| `APPLE_API_KEY_BASE64` | Base64 编码的 `.p8` 公证密钥 |
-
-正式模式会自动执行：
-
-1. 构建 Release 版 `KeyFlow.app`
-2. 使用 Developer ID Application 和 Hardened Runtime 重新签名
-3. 生成包含 `/Applications` 链接的 UDZO DMG
-4. 使用 `notarytool` 提交 Apple 公证
-5. 公证通过后 staple 并验证
-6. 上传 DMG 到 GitHub Release
-
-## 项目文档
-
-| 文档 | 内容 |
-| --- | --- |
-| [使用说明](Docs/使用说明.md) | 安装、授权、规则、Ring、电量、备份与故障排查 |
-| [UI 设计规范](Docs/DesignSystem.md) | 色彩、字体、组件、页面结构与状态 |
-| [Actions Ring 早期设计草案](Docs/KeyFlow-ActionsRing-UI-Requirements.md) | 功能演进与设计过程参考 |
-| [第三方许可证说明](Resources/ThirdPartyNotices.txt) | JZ M5 电量适配、Tabler Icons、Lucide、Heroicons 许可证 |
+关闭主窗口后，KeyFlow 会继续保留在菜单栏运行。
 
 ## 隐私与产品边界
 
