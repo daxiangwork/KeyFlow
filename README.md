@@ -129,6 +129,8 @@ Ring 不占用固定的默认按键。只需在任意规则中添加 **“打开
 
 需要 macOS 13+ 和 Xcode Command Line Tools，**不需要完整 Xcode**。
 
+### 本机运行包
+
 ```bash
 git clone https://github.com/daxiangwork/KeyFlow.git
 cd KeyFlow
@@ -137,9 +139,56 @@ swift build
 open dist/KeyFlow.app
 ```
 
-打包脚本会同时复制 Ring 图标库、生成稳定的本机签名，并输出可直接运行的 `dist/KeyFlow.app`。当前应用包内置完整 SVG 图标索引，打包后约为 37 MB。
+`package-app.sh` 会复制 Ring 图标库、生成本机可运行的 `dist/KeyFlow.app`，并优先使用 `CODE_SIGN_IDENTITY` 指定的签名身份。没有正式证书时，本机开发流程仍会使用本地开发签名。
 
-打包脚本优先使用 `CODE_SIGN_IDENTITY` 指定的签名身份；本机存在 `KeyFlow Local Development` 时使用该稳定身份，否则使用 ad-hoc 签名。稳定签名可以避免普通重新构建后反复授权。
+### DMG 发布策略
+
+项目支持两种发布模式，`.github/workflows/release.yml` 会根据 GitHub Secrets 自动选择。
+
+#### 没有 Apple Developer Program
+
+没有 Apple Developer Program 时，**推荐其他用户直接从源码构建**。推送版本 tag 后，CI 仍会生成一个明确标注的 DMG，但它只是测试版：
+
+```bash
+git tag v0.1.1
+git push origin v0.1.1
+```
+
+此时 GitHub Release 会标记为 **Pre-release**，DMG 文件名包含 `unsigned-test`，Release 说明中也会明确提示：
+
+- 未完成 Apple 公证
+- 仅适合信任该开源项目的测试用户
+- 首次打开需要在“隐私与安全性”中手动允许
+- 普通用户更推荐源码构建
+
+本地也可以验证未公证 DMG：
+
+```bash
+KEYFLOW_SKIP_NOTARIZATION=1 ./Scripts/package-dmg.sh
+```
+
+#### 已配置 Apple Developer Program
+
+对外公开分发推荐使用已签名、已公证、已 staple 的正式 DMG。配置以下 GitHub Secrets 后，推送同一个 `v*` tag 会自动生成正式 Release：
+
+| Secret | 用途 |
+| --- | --- |
+| `APPLE_CERTIFICATE_BASE64` | Base64 编码的 Developer ID Application `.p12` 证书 |
+| `APPLE_CERTIFICATE_PASSWORD` | 上述 `.p12` 证书密码 |
+| `KEYCHAIN_PASSWORD` | CI 临时钥匙串密码 |
+| `APPLE_SIGNING_IDENTITY` | 可选，完整签名身份，如 `Developer ID Application: Name (TeamID)` |
+| `APPLE_API_KEY_ID` | App Store Connect API Key ID |
+| `APPLE_API_ISSUER_ID` | App Store Connect API Issuer ID |
+| `APPLE_API_KEY_BASE64` | Base64 编码的 `.p8` 公证密钥 |
+
+正式模式会自动执行：
+
+1. 构建 Release 版 `KeyFlow.app`
+2. 使用 Developer ID Application 和 Hardened Runtime 重新签名
+3. 生成包含 `/Applications` 链接的 UDZO DMG
+4. 使用 `notarytool` 提交 Apple 公证
+5. 公证通过后 staple 并验证
+6. 上传 DMG 到 GitHub Release
 
 ## 项目文档
 
